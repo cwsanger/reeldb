@@ -7,7 +7,6 @@ package reeldbgui;
 
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Font;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -18,25 +17,25 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
+import java.text.NumberFormat;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
-import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
+import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JList;
-import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListCellRenderer;
 import javax.swing.table.TableModel;
-import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.text.NumberFormatter;
 
 
 public class reeldbGUI extends javax.swing.JFrame {
     static Connection conn;
     static Object[][] data = {}; //
+    static NumberFormatter formatter; 
     /**
      * Creates new form reeldbGUI
      */
@@ -65,7 +64,7 @@ public class reeldbGUI extends javax.swing.JFrame {
         jButton3 = new javax.swing.JButton();
         jButton4 = new javax.swing.JButton();
         jComboBox1 = new javax.swing.JComboBox<>();
-        jTextField2 = new javax.swing.JTextField();
+        jTextField2 = new JFormattedTextField(formatter);
         jScrollPane2 = new javax.swing.JScrollPane();
         jTable2 = new javax.swing.JTable();
         jLabel3 = new javax.swing.JLabel();
@@ -123,6 +122,8 @@ public class reeldbGUI extends javax.swing.JFrame {
             }
         });
 
+        jTextField2.setCursor(new java.awt.Cursor(java.awt.Cursor.TEXT_CURSOR));
+
         jTable2.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null},
@@ -131,7 +132,7 @@ public class reeldbGUI extends javax.swing.JFrame {
                 {null, null, null, null}
             },
             new String [] {
-                "Title 1", "Title 2", "Title 3", "Title 4"
+                "Movie", "Year", "Director", "Image"
             }
         ));
         jScrollPane2.setViewportView(jTable2);
@@ -206,20 +207,23 @@ public class reeldbGUI extends javax.swing.JFrame {
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
 
     }//GEN-LAST:event_jButton1ActionPerformed
-
+    /*
+    On the button click, launches an SQL query, gets data set, loops through it 
+    and builds the model to display in the column JTable. 
+    */
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
             String[] columnName = {"Movie","Year", "Rating", "RT Picture","IMDB Picture"}; //set column names for query 1
             DefaultTableModel model = new DefaultTableModel(data, columnName); //definte the model for this query takes in data object & the col names
-            Statement stmt;
+            //if query fails, the application won't crash
             try {
             String userInput = jTextField2.getText();//grab user input from text field
-            if(userInput.equals("")){
-                userInput = "10"; //no user input, run 10 queries by default
+            if(userInput.isEmpty()){
+                userInput = "10"; //if no user input, run 10 queries by default
             }
-            stmt = conn.createStatement();
-            String sql;
-            sql = "SELECT DISTINCT title, year, rtAudienceScore, rtAudienceNumRatings, rtPictureURL, imdbPictureURL FROM reeldb.movies ORDER BY rtAudienceScore DESC, rtAudienceNumRatings DESC LIMIT "+userInput;
-            ResultSet rs = stmt.executeQuery(sql);
+            Statement stmt = conn.createStatement();
+            String sql = "SELECT DISTINCT title, year, rtAudienceScore, rtAudienceNumRatings, rtPictureURL, imdbPictureURL FROM reeldb.movies ORDER BY rtAudienceScore DESC, rtAudienceNumRatings DESC LIMIT "+userInput;
+            ResultSet rs = stmt.executeQuery(sql); // run the SQL query
+            
             while(rs.next()){
                //Retrieve by column name
                String first = rs.getString("title");
@@ -227,36 +231,35 @@ public class reeldbGUI extends javax.swing.JFrame {
                String third = rs.getString("rtAudienceScore");
                String fourth = rs.getString("rtPictureURL");
                String fifth = rs.getString("imdbPictureURL");
-               model.addRow(new Object[]{first, second,third,fourth,fifth});
+               model.addRow(new Object[]{first, second, third, fourth, fifth});// adds the result to a row
             }
             rs.close();
             stmt.close();
             jTable2.setModel(model); //apply the data set
-                //listen for clicks on image cells to disply images
-                jTable2.addMouseListener(new java.awt.event.MouseAdapter() {
-                @Override
-                public void mouseClicked(java.awt.event.MouseEvent evt) {
-                    int row = jTable2.rowAtPoint(evt.getPoint());
-                    int col = jTable2.columnAtPoint(evt.getPoint());
-                    try {
-                        URL url = new URL((String)jTable2.getModel().getValueAt(row, col));
-                        BufferedImage img = ImageIO.read(url);
-                        ImageIcon icon = new ImageIcon(img);
-                        Image image = icon.getImage(); // transform it 
-                        Image newimg = image.getScaledInstance(150, -1,  java.awt.Image.SCALE_SMOOTH); // scale it the smooth way  
-                        icon = new ImageIcon(newimg);  // transform it back
-                        jLabel3.setIcon(icon);
-                        String labelText = (String)jTable2.getModel().getValueAt(row, 0) + "\n" +(String)jTable2.getModel().getValueAt(row, 1);
-                        jLabel3.setText(labelText);
-                    } catch (MalformedURLException ex) {
-                        Logger.getLogger(reeldbGUI.class.getName()).log(Level.SEVERE, null, ex);
-                    } catch (IOException ex) {
-                        Logger.getLogger(reeldbGUI.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-
+            
+            //listen for clicks on image cells to disply images
+            jTable2.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                int row = jTable2.rowAtPoint(evt.getPoint());
+                int col = jTable2.columnAtPoint(evt.getPoint());
+                try {
+                    URL url = new URL((String)jTable2.getModel().getValueAt(row, col));
+                    BufferedImage img = ImageIO.read(url);
+                    ImageIcon icon = new ImageIcon(img);
+                    Image image = icon.getImage(); // transform it 
+                    Image newimg = image.getScaledInstance(150, -1,  java.awt.Image.SCALE_SMOOTH); // scale it the smooth way  
+                    icon = new ImageIcon(newimg);  // transform it back
+                    jLabel3.setIcon(icon);
+                    jLabel3.setText("");
+                } catch (MalformedURLException ex) {
+                    Logger.getLogger(reeldbGUI.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (IOException ex) {
+                    Logger.getLogger(reeldbGUI.class.getName()).log(Level.SEVERE, null, ex);
                 }
-            });
 
+            }
+        });
         } catch (SQLException ex) {
             Logger.getLogger(reeldbGUI.class.getName()).log(Level.SEVERE, null, ex);
         }    }//GEN-LAST:event_jButton2ActionPerformed
@@ -311,7 +314,10 @@ public class reeldbGUI extends javax.swing.JFrame {
             System.out.println("Connecting to database...");
             Class.forName("com.mysql.jdbc.Driver");
             conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/reeldb?useServerPrepStmts=false&rewriteBatchedStatements=true", "root", "Rootadmin$12");
-
+            NumberFormat longFormat = NumberFormat.getIntegerInstance();
+            formatter = new NumberFormatter(longFormat);
+            formatter.setValueClass(Integer.class);
+            formatter.setAllowsInvalid(false); //this is the key!!
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
