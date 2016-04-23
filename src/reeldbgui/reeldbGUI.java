@@ -68,6 +68,10 @@ public class reeldbGUI extends javax.swing.JFrame {
         jScrollPane2 = new javax.swing.JScrollPane();
         jTable2 = new javax.swing.JTable();
         jLabel3 = new javax.swing.JLabel();
+        jTextField3 = new javax.swing.JTextField();
+        jTextField4 = new javax.swing.JTextField();
+        jLabel4 = new javax.swing.JLabel();
+        jLabel5 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setMaximumSize(new java.awt.Dimension(900, 650));
@@ -100,7 +104,7 @@ public class reeldbGUI extends javax.swing.JFrame {
             }
         });
 
-        jButton3.setText("Static Query 2");
+        jButton3.setText("Query 3");
         jButton3.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton3ActionPerformed(evt);
@@ -140,6 +144,14 @@ public class reeldbGUI extends javax.swing.JFrame {
         jLabel3.setText("Image");
         jLabel3.setMaximumSize(new java.awt.Dimension(40, 100));
 
+        jTextField3.setText("jTextField3");
+
+        jTextField4.setText("jTextField4");
+
+        jLabel4.setText("Genre:");
+
+        jLabel5.setText("#:");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -157,14 +169,23 @@ public class reeldbGUI extends javax.swing.JFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jButton3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jButton4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(jButton2)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jTextField2, javax.swing.GroupLayout.DEFAULT_SIZE, 43, Short.MAX_VALUE))
+                                .addComponent(jTextField2))
+                            .addComponent(jButton4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addGroup(layout.createSequentialGroup()
-                                .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, 101, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                            .addComponent(jLabel4))
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addComponent(jLabel5)
+                                            .addComponent(jTextField4, javax.swing.GroupLayout.PREFERRED_SIZE, 96, javax.swing.GroupLayout.PREFERRED_SIZE))))
                                 .addGap(0, 0, Short.MAX_VALUE)))))
                 .addContainerGap())
         );
@@ -190,10 +211,18 @@ public class reeldbGUI extends javax.swing.JFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jButton3)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel4)
+                            .addComponent(jLabel5))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jTextField4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(18, 18, 18)
                         .addComponent(jButton4)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 405, Short.MAX_VALUE))
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 402, Short.MAX_VALUE))
                 .addContainerGap())
         );
 
@@ -265,35 +294,63 @@ public class reeldbGUI extends javax.swing.JFrame {
         }    }//GEN-LAST:event_jButton2ActionPerformed
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
-            //Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/reeldb","root", "Rootadmin$12");
-           // movies.clear();
-            System.out.println("Success");
-            Statement stmt;
+    String[] columnName = {"Movie","Year", "Rating", "RT Picture","IMDB Picture", "Genre"}; //set column names for query 1
+            DefaultTableModel model = new DefaultTableModel(data, columnName); //definte the model for this query takes in data object & the col names
+            //if query fails, the application won't crash
             try {
-            stmt = conn.createStatement();
-
-            System.out.println("Creating statement...");
-            stmt = conn.createStatement();
-            String sql;
-            sql = " SELECT m.id, title, year, rtAudienceScore, rtPictureURL, imdbPictureURL, g.movieID" +
-" FROM reeldb.movies AS m, reeldb.movie_genres AS g" +
-" WHERE m.id = g.movieID" +
-" ORDER BY rtAudienceScore DESC LIMIT 10;";
-            ResultSet rs = stmt.executeQuery(sql);
-
+            String genre = jTextField3.getText();//grab user input from text field
+            String num = jTextField4.getText();//grab user input from text field
+            if(genre.isEmpty()){
+                genre = "horror"; //if no user input, run 10 queries by default
+            }
+            if(num.isEmpty()){
+                num = "10"; //if no user input, run 10 queries by default
+            }
+            Statement stmt = conn.createStatement();
+            String sql = "SELECT m.id, title, year, rtAudienceScore, rtPictureURL, imdbPictureURL, g.genre" +
+            " FROM reeldb.movies AS m, reeldb.movie_genres AS g\n" +
+            " WHERE m.id = g.movieID AND g.genre LIKE '%"+genre+"%' "+
+            " ORDER BY rtAudienceScore DESC LIMIT "+num;
+            ResultSet rs = stmt.executeQuery(sql); // run the SQL query
+            
             while(rs.next()){
                //Retrieve by column name
                String first = rs.getString("title");
-               MovieEntry temp = new MovieEntry(first);
-              // movies.addElement(temp);
-               System.out.println(first);
-
+               String second = rs.getString("year");
+               String third = rs.getString("rtAudienceScore");
+               String fourth = rs.getString("rtPictureURL");
+               String fifth = rs.getString("imdbPictureURL");
+               String sixth = rs.getString("g.genre");
+               model.addRow(new Object[]{first, second, third, fourth, fifth, sixth});// adds the result to a row
             }
             rs.close();
             stmt.close();
+            jTable2.setModel(model); //apply the data set
+            
+            //listen for clicks on image cells to disply images
+            jTable2.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                int row = jTable2.rowAtPoint(evt.getPoint());
+                int col = jTable2.columnAtPoint(evt.getPoint());
+                try {
+                    URL url = new URL((String)jTable2.getModel().getValueAt(row, col));
+                    BufferedImage img = ImageIO.read(url);
+                    ImageIcon icon = new ImageIcon(img);
+                    Image image = icon.getImage(); // transform it 
+                    Image newimg = image.getScaledInstance(150, -1,  java.awt.Image.SCALE_SMOOTH); // scale it the smooth way  
+                    icon = new ImageIcon(newimg);  // transform it back
+                    jLabel3.setIcon(icon);
+                    jLabel3.setText("");
+                } catch (MalformedURLException ex) {
+                    Logger.getLogger(reeldbGUI.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (IOException ex) {
+                    Logger.getLogger(reeldbGUI.class.getName()).log(Level.SEVERE, null, ex);
+                }
 
-
-                    } catch (SQLException ex) {
+            }
+        });
+        } catch (SQLException ex) {
             Logger.getLogger(reeldbGUI.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_jButton3ActionPerformed
@@ -309,21 +366,30 @@ public class reeldbGUI extends javax.swing.JFrame {
     /**
      * @param args the command line arguments
      */
-    public static void main(String args[]) throws ClassNotFoundException, SQLException {
-        /* Set the Nimbus look and feel */
-            System.out.println("Connecting to database...");
+    public static void main(String args[])  {
+        System.out.println("Trying to the database...");
+        try {
             Class.forName("com.mysql.jdbc.Driver");
             conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/reeldb?useServerPrepStmts=false&rewriteBatchedStatements=true", "root", "Rootadmin$12");
+            //Creates a formatter to allow only number input in certain textfields
             NumberFormat longFormat = NumberFormat.getIntegerInstance();
             formatter = new NumberFormatter(longFormat);
             formatter.setValueClass(Integer.class);
-            formatter.setAllowsInvalid(false); //this is the key!!
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new reeldbGUI().setVisible(true);
-            }
-        });
+            formatter.setAllowsInvalid(false);
+            
+            /* Create and display the form */
+            java.awt.EventQueue.invokeLater(new Runnable() {
+                public void run() {
+                    new reeldbGUI().setVisible(true);
+                }
+            });
+            
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(reeldbGUI.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SQLException ex) {
+            Logger.getLogger(reeldbGUI.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.printf("No connection to database..");
+        }
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -335,10 +401,14 @@ public class reeldbGUI extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTable jTable2;
     private javax.swing.JTextField jTextField1;
     private javax.swing.JTextField jTextField2;
+    private javax.swing.JTextField jTextField3;
+    private javax.swing.JTextField jTextField4;
     // End of variables declaration//GEN-END:variables
 }
 class MovieEntry {
